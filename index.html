@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsbyte — News that matters, in under a minute</title>
+<meta name="description" content="Newsbyte delivers short, sharp, personalised news from India and around the world — summarised in 5-7 lines so you can stay informed in under a minute.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --ink:#101113;
+    --ink-soft:#6E6F76;
+    --ink-faint:#9A9BA1;
+    --line:#E7E7EA;
+    --wire:#C81E3A;
+    --wire-dark:#9E1730;
+    --wire-tint:rgba(200,30,58,0.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    font-size:15px;
+  }
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ── Ticker ─────────────────────────────────────────────── */
+  .ticker{
+    background:var(--ink);
+    color:#fff;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:7px 0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .ticker-inner{
+    display:inline-flex;
+    gap:40px;
+    animation:scroll 26s linear infinite;
+    padding-left:100%;
+  }
+  @keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+  .ticker span{opacity:0.8;}
+  .ticker .dot{color:var(--wire);margin:0 6px;}
+
+  /* ── Topbar / wordmark ──────────────────────────────────── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .wordmark{
+    font-size:23px;
+    display:inline-flex;
+    align-items:baseline;
+    letter-spacing:0.01em;
+  }
+  .wordmark .w-news{font-family:'Fraunces',serif;font-style:italic;font-weight:400;color:var(--ink);}
+  .wordmark .w-byte{
+    font-family:'JetBrains Mono',monospace;font-weight:700;
+    background:var(--ink);color:#fff;padding:1px 7px 2px;border-radius:4px;margin-left:3px;
+    font-size:17px;letter-spacing:0.01em;
+  }
+  .topnav{display:flex;align-items:center;gap:26px;font-size:13px;font-weight:500;color:var(--ink-soft);}
+  .topnav a:hover{color:var(--ink);}
+  .topbar-ctas{display:flex;gap:10px;align-items:center;}
+
+  .btn{
+    padding:9px 16px;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    border:1.5px solid transparent;
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--wire);color:#fff;}
+  .btn-primary:hover{background:var(--wire-dark);}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--ink);}
+  .btn-lg{padding:13px 22px;font-size:14px;border-radius:8px;}
+
+  /* ── Fold: intro + live feed side by side ──────────────── */
+  .fold{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:48px;
+    padding:40px 0 0;
+    align-items:start;
+  }
+  .fold-intro{position:sticky;top:88px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--wire);
+    margin-bottom:14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .pulse{width:7px;height:7px;border-radius:50%;background:var(--wire);display:inline-block;position:relative;flex-shrink:0;}
+  .pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--wire);animation:pulse 1.8s ease-out infinite;}
+  @keyframes pulse{0%{transform:scale(0.6);opacity:1;}100%{transform:scale(1.8);opacity:0;}}
+
+  .fold-intro h1{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:32px;
+    line-height:1.15;
+    margin-bottom:14px;
+  }
+  .fold-intro p{color:var(--ink-soft);font-size:14.5px;margin-bottom:24px;}
+  .fold-ctas{display:flex;flex-direction:column;gap:9px;margin-bottom:28px;}
+  .fold-ctas .btn{justify-content:center;}
+  .fold-stats{display:flex;gap:22px;padding-top:20px;border-top:1px solid var(--line);}
+  .fold-stats .stat b{display:block;font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+  .fold-stats .stat span{font-size:11px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;}
+
+  /* ── Pills ──────────────────────────────────────────────── */
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .pill{
+    padding:7px 14px;
+    border-radius:100px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    transition:all .12s ease;
+  }
+  .pill:hover{border-color:var(--ink-faint);color:var(--ink);}
+  .pill.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  .live-status{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;color:var(--ink-faint);
+    margin-bottom:16px;
+  }
+  .live-status .pill{font-family:'Inter',sans-serif;font-size:11.5px;padding:5px 12px;}
+  .live-status .pill:disabled{opacity:0.45;cursor:not-allowed;}
+
+  /* ── Story grid ─────────────────────────────────────────── */
+  .story-list{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .story-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    background:#fff;
+    transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .story-card:hover{border-color:var(--ink-faint);box-shadow:0 2px 10px rgba(0,0,0,0.04);}
+  .story-card.breaking{border-left:3px solid var(--wire);}
+  .story-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;}
+  .story-cat{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.05em;
+    display:flex;align-items:center;gap:6px;
+  }
+  .story-cat .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .story-time{font-size:11px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+  .breaking-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;
+    color:var(--wire);letter-spacing:0.06em;margin-right:6px;
+  }
+  .story-headline{font-size:14.5px;font-weight:600;line-height:1.35;margin-bottom:6px;}
+  .story-summary{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:10px;}
+  .story-source{font-size:11px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;}
+
+  .skeleton{border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .skeleton .bar{height:10px;border-radius:4px;background:linear-gradient(90deg,#F0F0F1 25%,#F7F7F8 37%,#F0F0F1 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;margin-bottom:8px;}
+  .skeleton .w1{width:40%;height:8px;} .skeleton .w2{width:90%;} .skeleton .w3{width:70%;}
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+  .live-empty,.live-error{
+    grid-column:1/-1;padding:28px;text-align:center;color:var(--ink-soft);font-size:13.5px;
+    border:1px dashed var(--line);border-radius:10px;
+  }
+
+  /* ── Feature strip ──────────────────────────────────────── */
+  .features{padding:56px 0;border-top:1px solid var(--line);margin-top:56px;}
+  .features-head{margin-bottom:24px;}
+  .features-head .eyebrow{margin-bottom:8px;}
+  .features-head h3{font-family:'Fraunces',serif;font-weight:400;font-size:24px;}
+  .feature-strip{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:0;
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+  }
+  .feature{
+    padding:20px 16px;
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .feature .icon{font-size:17px;margin-bottom:10px;}
+  .feature h4{font-size:12.5px;font-weight:600;margin-bottom:5px;}
+  .feature p{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+
+  /* ── Proof: screenshot + video ──────────────────────────── */
+  .proof{padding:56px 0;}
+  .proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .proof-frame{
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+    height:280px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .proof-caption{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);}
+
+  /* ── Footer / download bar ──────────────────────────────── */
+  footer{
+    border-top:1px solid var(--line);
+    padding:28px 0;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+  }
+  .footer-left{font-size:12.5px;color:var(--ink-soft);}
+  .footer-left .mono{color:var(--ink-faint);font-size:11px;display:block;margin-top:2px;}
+  .footer-links{display:flex;gap:10px;flex-wrap:wrap;}
+
+  @media (max-width:880px){
+    .fold{grid-template-columns:1fr;}
+    .fold-intro{position:static;}
+    .story-list{grid-template-columns:1fr;}
+    .feature-strip{grid-template-columns:repeat(2,1fr);}
+    .proof-grid{grid-template-columns:1fr;}
+    .topnav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="ticker"><div class="ticker-inner mono" id="tickerText"></div></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="wordmark"><span class="w-news">News</span><span class="w-byte">BYTE</span></div>
+      <nav class="topnav">
+        <a href="#feed">Live feed</a>
+        <a href="#features">Features</a>
+        <a href="#proof">Inside the app</a>
+      </nav>
+      <div class="topbar-ctas">
+        <a class="btn btn-ghost" href="https://github.com/Akshayakky/news-frontend/releases/download/1.0.0/application-65c4f498-ae43-4e0a-bfe4-a25d0a98eb74.apk" download>Download APK</a>
+        <a class="btn btn-primary" href="https://www.indusappstore.com/apps/news-and-magazines/newsbyte/com.anonymous.NewsApp/?page=details&id=com.anonymous.NewsApp" target="_blank" rel="noopener">Get the app ↗</a>
+      </div>
+    </div>
+
+    <section class="fold" id="feed">
+      <div class="fold-intro">
+        <div class="eyebrow"><span class="pulse"></span>Live feed</div>
+        <h1>News that matters, in under a minute.</h1>
+        <p>Every story below is pulled live from Newsbyte's own API and summarised to 5-7 lines — the same feed the app runs on.</p>
+        <div class="fold-ctas">
+          <a class="btn btn-primary btn-lg" href="https://www.indusappstore.com/apps/news-and-magazines/newsbyte/com.anonymous.NewsApp/?page=details&id=com.anonymous.NewsApp" target="_blank" rel="noopener">Get it on Indus App Store ↗</a>
+          <a class="btn btn-ghost btn-lg" href="#proof">▶ Watch a 20s demo</a>
+        </div>
+        <div class="fold-stats">
+          <div class="stat"><b>10</b><span>Categories</span></div>
+          <div class="stat"><b>1h</b><span>Refresh rate</span></div>
+          <div class="stat"><b>5-7</b><span>Lines / story</span></div>
+        </div>
+      </div>
+
+      <div class="feed-main">
+        <div class="pill-row" id="pillRow"></div>
+        <div class="live-status">
+          <span id="liveStatusText">Connecting to live feed…</span>
+          <button class="pill" id="refreshBtn" style="margin-left:auto;" disabled>⚡ Fetch latest now</button>
+        </div>
+        <div class="story-list" id="storyList">
+          <div class="skeleton"><div class="bar w1"></div><div class="bar w2"></div><div class="bar w3"></div></div>
+          <div class="skeleton"><div class="bar w1"></div><div class="bar w2"></div><div class="bar w3"></div></div>
+          <div class="skeleton"><div class="bar w1"></div><div class="bar w2"></div><div class="bar w3"></div></div>
+          <div class="skeleton"><div class="bar w1"></div><div class="bar w2"></div><div class="bar w3"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="features-head">
+        <div class="eyebrow" style="color:var(--ink-faint)">Why Newsbyte</div>
+        <h3>Built for people, not scrolling</h3>
+      </div>
+      <div class="feature-strip">
+        <div class="feature"><div class="icon">🇮🇳</div><h4>Wide coverage</h4><p>India, World, Tech, Business, Sports and more — one feed.</p></div>
+        <div class="feature"><div class="icon">⚡</div><h4>Real-time alerts</h4><p>Push notifications the moment it breaks.</p></div>
+        <div class="feature"><div class="icon">🎯</div><h4>Pick your 4</h4><p>Choose up to four topics you care about.</p></div>
+        <div class="feature"><div class="icon">📍</div><h4>Local, too</h4><p>Set your city for local news alongside national.</p></div>
+        <div class="feature"><div class="icon">🔄</div><h4>Always fresh</h4><p>New stories land automatically every hour.</p></div>
+        <div class="feature"><div class="icon">✂️</div><h4>Short by design</h4><p>Every story: who, what, where, when, why. Facts only.</p></div>
+      </div>
+    </section>
+
+    <section class="proof" id="proof">
+      <div class="features-head">
+        <div class="eyebrow" style="color:var(--ink-faint)">A look inside</div>
+        <h3>Clean by default</h3>
+      </div>
+      <div class="proof-grid">
+        <div>
+          <div class="proof-frame">
+            <img src="assets/screenshots.png" alt="Newsbyte app screenshots showing the home feed, category filters, topic picker, and an expanded story" style="width:100%;height:100%;object-fit:contain;">
+          </div>
+          <div class="proof-caption">Home feed · Filters · Topic picker · Story view</div>
+        </div>
+        <div>
+          <div class="proof-frame">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/rw3WSATvMWg" title="Newsbyte demo preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:block;"></iframe>
+          </div>
+          <div class="proof-caption">20-second walkthrough</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-left">
+        Newsbyte — short, sharp, personalised news.
+        <span class="mono">Built in India 🇮🇳</span>
+      </div>
+      <div class="footer-links">
+        <a class="btn btn-ghost" href="https://github.com/Akshayakky/news-frontend/releases/download/1.0.0/application-65c4f498-ae43-4e0a-bfe4-a25d0a98eb74.apk" download>Download APK</a>
+        <a class="btn btn-primary" href="https://www.indusappstore.com/apps/news-and-magazines/newsbyte/com.anonymous.NewsApp/?page=details&id=com.anonymous.NewsApp" target="_blank" rel="noopener">Get it on Indus App Store ↗</a>
+      </div>
+    </footer>
+  </div>
+
+<script>
+  const API_BASE = "https://news-backend-production-042b.up.railway.app";
+  const CATEGORIES = ["All","India","World","Tech","Business","Trading","Crypto","Sports","Science","Politics","Local"];
+  const CATEGORY_COLORS = {
+    India:"#FF6B35", World:"#2E86AB", Tech:"#6C63FF", Business:"#2A9D8F",
+    Trading:"#1B998B", Crypto:"#E8871E", Sports:"#3A86FF", Science:"#8338EC",
+    Politics:"#B5179E", Local:"#5C6B73", All:"#C81E3A"
+  };
+
+  function initTicker(){
+    const today = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const msgs = [today, "Fresh stories every hour, automatically", "10 categories · pick up to 4", "Real-time push notifications for breaking news"];
+    document.getElementById('tickerText').innerHTML = msgs.map(m => `<span>${m}</span>`).join('<span class="dot">●</span>');
+  }
+
+  function timeAgo(iso){
+    if(!iso) return "";
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  }
+
+  let activeCategory = "All";
+  function renderPills(){
+    const row = document.getElementById('pillRow');
+    row.innerHTML = CATEGORIES.map(cat => `<button class="pill${cat === activeCategory ? ' active' : ''}" data-cat="${cat}">${cat}</button>`).join('');
+    row.querySelectorAll('.pill').forEach(btn => {
+      btn.addEventListener('click', () => { activeCategory = btn.dataset.cat; renderPills(); loadStories(); });
+    });
+  }
+
+  function storyCardHTML(s){
+    const color = CATEGORY_COLORS[s.category] || CATEGORY_COLORS.All;
+    const headline = s.headline || "Untitled";
+    const summary = s.summary || "";
+    const breaking = (s.importance || 0) >= 9;
+    return `
+      <div class="story-card${breaking ? ' breaking' : ''}">
+        <div class="story-top">
+          <span class="story-cat" style="color:${color}"><span class="dot" style="background:${color}"></span>${s.category || "News"}</span>
+          <span class="story-time">${timeAgo(s.publishedAt)}</span>
+        </div>
+        <div class="story-headline">${breaking ? '<span class="breaking-tag">BREAKING</span>' : ''}${headline}</div>
+        <div class="story-summary">${summary.length > 180 ? summary.slice(0,180) + '…' : summary}</div>
+        <div class="story-source">${s.source || ""}</div>
+      </div>
+    `;
+  }
+
+  function showSkeleton(){
+    document.getElementById('storyList').innerHTML = Array(4).fill(
+      `<div class="skeleton"><div class="bar w1"></div><div class="bar w2"></div><div class="bar w3"></div></div>`
+    ).join('');
+  }
+
+  async function fetchJSON(url){
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (directErr) {
+      console.warn('Direct fetch failed, retrying via proxy…', directErr);
+      const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const res = await fetch(proxied);
+      if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+      return await res.json();
+    }
+  }
+
+  const COOLDOWN_MS = 10 * 60 * 1000; // must match backend FETCH_COOLDOWN_MS
+
+  function updateRefreshButton(latestPublishedAt){
+    const btn = document.getElementById('refreshBtn');
+    if (!latestPublishedAt) { btn.disabled = true; btn.textContent = '⚡ Fetch latest now'; return; }
+    const ageMs = Date.now() - new Date(latestPublishedAt).getTime();
+    const remainingMs = COOLDOWN_MS - ageMs;
+    if (remainingMs <= 0) {
+      btn.disabled = false;
+      btn.textContent = '⚡ Fetch latest now';
+    } else {
+      btn.disabled = true;
+      const mins = Math.ceil(remainingMs / 60000);
+      btn.textContent = `⏱ Next fetch in ${mins}m`;
+    }
+  }
+
+  async function triggerFetch(){
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Fetching…';
+    try {
+      const data = await fetchJSON(`${API_BASE}/run-fetch`);
+      btn.textContent = '✓ Fetch started';
+      setTimeout(() => loadStories(), 5000); // give the backend a few seconds before we poll again
+    } catch (e) {
+      console.error('Trigger fetch failed:', e);
+      btn.textContent = '⚠ Try again later';
+      setTimeout(() => loadStories(), 2000);
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', triggerFetch);
+
+  async function loadStories(){
+    const statusText = document.getElementById('liveStatusText');
+    const list = document.getElementById('storyList');
+    showSkeleton();
+    statusText.textContent = "Loading latest stories…";
+    const url = `${API_BASE}/news?limit=8${activeCategory !== "All" ? `&category=${encodeURIComponent(activeCategory)}` : ""}`;
+    try {
+      const data = await fetchJSON(url);
+      const stories = data.stories || [];
+      if (stories.length === 0) {
+        list.innerHTML = `<div class="live-empty">No stories in ${activeCategory} right now — check back soon.</div>`;
+        statusText.textContent = "Live feed connected";
+        return;
+      }
+      list.innerHTML = stories.map(storyCardHTML).join('');
+      statusText.textContent = `Live feed connected · ${stories.length} stories`;
+      updateRefreshButton(stories[0]?.publishedAt);
+    } catch (e) {
+      console.error('Failed to load stories:', e);
+      list.innerHTML = `<div class="live-error">Couldn't reach the live feed right now — try refreshing in a moment.</div>`;
+      statusText.textContent = "Live feed unavailable";
+    }
+  }
+
+  initTicker();
+  renderPills();
+  loadStories();
+</script>
+</body>
+</html>
