@@ -189,7 +189,15 @@
     color:var(--wire);letter-spacing:0.06em;margin-right:6px;
   }
   .story-headline{font-size:14.5px;font-weight:600;line-height:1.35;margin-bottom:6px;}
-  .story-summary{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:10px;}
+  .story-summary{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:6px;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .story-summary.expanded{-webkit-line-clamp:unset;display:block;overflow:visible;}
+  .read-more-btn{
+    background:none;border:none;padding:0;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+    color:var(--wire);cursor:pointer;margin-bottom:10px;display:inline-block;
+  }
+  .read-more-btn:hover{text-decoration:underline;}
   .story-source{font-size:11px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;}
 
   .skeleton{border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
@@ -389,11 +397,12 @@
     });
   }
 
-  function storyCardHTML(s){
+  function storyCardHTML(s, idx){
     const color = CATEGORY_COLORS[s.category] || CATEGORY_COLORS.All;
     const headline = s.headline || "Untitled";
     const summary = s.summary || "";
     const breaking = (s.importance || 0) >= 9;
+    const summaryId = `summary-${idx}`;
     return `
       <div class="story-card${breaking ? ' breaking' : ''}">
         <div class="story-top">
@@ -401,10 +410,17 @@
           <span class="story-time">${timeAgo(s.publishedAt)}</span>
         </div>
         <div class="story-headline">${breaking ? '<span class="breaking-tag">BREAKING</span>' : ''}${headline}</div>
-        <div class="story-summary">${summary.length > 180 ? summary.slice(0,180) + '…' : summary}</div>
+        <div class="story-summary" id="${summaryId}">${summary}</div>
+        <button class="read-more-btn" onclick="toggleSummary('${summaryId}', this)">Read more ↓</button>
         <div class="story-source">${s.source || ""}</div>
       </div>
     `;
+  }
+
+  function toggleSummary(id, btn){
+    const el = document.getElementById(id);
+    const expanded = el.classList.toggle('expanded');
+    btn.textContent = expanded ? 'Show less ↑' : 'Read more ↓';
   }
 
   function showSkeleton(){
@@ -475,7 +491,7 @@
         statusText.textContent = "Live feed connected";
         return;
       }
-      list.innerHTML = stories.map(storyCardHTML).join('');
+      list.innerHTML = stories.map((s, i) => storyCardHTML(s, i)).join('');
       statusText.textContent = `Live feed connected · ${stories.length} stories`;
       updateRefreshButton(stories[0]?.publishedAt);
     } catch (e) {
